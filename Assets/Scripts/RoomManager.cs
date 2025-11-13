@@ -4,24 +4,42 @@ using UnityEngine.SceneManagement;
 
 public class RoomManager : MonoBehaviour
 {
-    public async void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log(SceneManager.GetActiveScene().name);
-        if (collision.gameObject.CompareTag("Player") && SceneManager.GetActiveScene() == SceneManager.GetSceneByBuildIndex(0))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("Change");
-            await SceneManager.LoadSceneAsync(1);
-            execute(1);
-        }
-        else if(collision.gameObject.CompareTag("Player") && SceneManager.GetActiveScene() == SceneManager.GetSceneByBuildIndex(1))
-        {
-            Debug.Log("Change Back");
-            await SceneManager.LoadSceneAsync(0);
-            execute(0);
+            switch (SceneManager.GetActiveScene().name)
+            {
+                case "OpeningRoom":
+                    switch (gameObject.tag)
+                    {
+                        case "Door1":
+                            LoadScene("SecondRoom");
+                            break;
+                        case "Door2":
+                            LoadScene("ThirdRoom");
+                            break;
+                    }
+                    break;
+                case "SecondRoom":
+                    LoadScene("OpeningRoom");
+                    break;
+                case "ThirdRoom":
+                    LoadScene("OpeningRoom");
+                    break;
+                default:
+                    break;
+            }
         }
     }
-    void execute(int i)
+
+    private async void LoadScene(string name)
     {
-        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(i));
+        await SceneManager.LoadSceneAsync(name);
+        Execute(name);
+    }
+    private void Execute(string name)
+    {
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
     }
 }
