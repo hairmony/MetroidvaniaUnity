@@ -13,6 +13,9 @@ public class PlayerAnimation : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         playerMovement = GetComponent<PlayerMovement>();
         rb = GetComponent<Rigidbody2D>();
+
+        // Animations independent of total time scale for slowing time!
+        anim.updateMode = AnimatorUpdateMode.UnscaledTime;
     }
 
     void Update()
@@ -39,5 +42,18 @@ public class PlayerAnimation : MonoBehaviour
         {
             sr.flipX = true; // Facing left
         }
+
+        float playerSpeedMultiplier;
+        // If slowing, set animation time scale
+        if (playerMovement.isSlowing)
+        {
+            playerSpeedMultiplier = playerMovement.slowFactorPlayer;
+        }
+        else
+        {
+            playerSpeedMultiplier = 1f;
+        }
+
+        anim.speed = playerSpeedMultiplier;
     }
 }

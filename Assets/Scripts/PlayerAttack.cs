@@ -32,7 +32,6 @@ public class PlayerAttack : MonoBehaviour
             attackBuffered = false;
         }
 
-        // --- THIS IS THE FIXED LOGIC ---
         if (Input.GetMouseButtonDown(0))
         {
             if (canAttack)
@@ -41,11 +40,18 @@ public class PlayerAttack : MonoBehaviour
             }
             else
             {
-                // Only buffer the attack if we click WHILE busy
                 attackBuffered = true;
             }
         }
-        // --- END OF FIX ---
+
+        if (playerMovement != null && attackPoint != null)
+        {
+            // Flip attackPoint X offset when facing left
+            if (playerMovement.GetComponent<SpriteRenderer>().flipX)
+                attackPoint.localPosition = new Vector3(-Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
+            else
+                attackPoint.localPosition = new Vector3(Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
+        }
     }
 
     private void Attack()
