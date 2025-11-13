@@ -6,22 +6,27 @@ public class RoomManager : MonoBehaviour
 {
     public async void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log(SceneManager.GetActiveScene().name);
-        if (collision.gameObject.CompareTag("Player") && SceneManager.GetActiveScene() == SceneManager.GetSceneByBuildIndex(0))
+        //Only assumes 1 door per room
+        if (collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("Change");
-            await SceneManager.LoadSceneAsync(1);
-            execute(1);
-        }
-        else if(collision.gameObject.CompareTag("Player") && SceneManager.GetActiveScene() == SceneManager.GetSceneByBuildIndex(1))
-        {
-            Debug.Log("Change Back");
-            await SceneManager.LoadSceneAsync(0);
-            execute(0);
+            switch (SceneManager.GetActiveScene().name)
+            {
+                case "OpeningRoom":
+                    await SceneManager.LoadSceneAsync("SecondRoom");
+                    execute("SecondRoom");
+                    break;
+                case "SecondRoom":
+                    await SceneManager.LoadSceneAsync("OpeningRoom");
+                    execute("OpeningRoom");
+                    break;
+                default:
+                    break;
+            }
         }
     }
-    void execute(int i)
+
+    void execute(string name)
     {
-        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(i));
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(name));
     }
 }

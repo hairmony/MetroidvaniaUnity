@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
+    private PlayerControls controls;
+
     [Header("Combo Logic")]
     [SerializeField] public float comboWindow = 1.0f; // Time allowed between combo attacks
     private int comboStep = 0;
@@ -9,7 +11,7 @@ public class PlayerAttack : MonoBehaviour
     private bool canAttack = true;
     private bool attackBuffered = false;
 
-    [Header("Damage Hitbox")]
+    [Header("Damage")]
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackRange = 0.5f;
     [SerializeField] private int attackDamage = 20;
@@ -17,11 +19,14 @@ public class PlayerAttack : MonoBehaviour
 
     private Animator anim;
     private PlayerMovement playerMovement;
+    private SpriteRenderer sr;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovement>();
+        controls = GetComponent<PlayerControls>();
+        sr = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -32,7 +37,7 @@ public class PlayerAttack : MonoBehaviour
             attackBuffered = false;
         }
 
-        if (Input.GetMouseButtonDown(0) || Input.GetButtonDown("Fire1"))
+        if (controls.fire1Pressed)
         {
             if (canAttack)
             {
@@ -47,7 +52,7 @@ public class PlayerAttack : MonoBehaviour
         if (playerMovement != null && attackPoint != null)
         {
             // Flip attackPoint X offset when facing left
-            if (playerMovement.GetComponent<SpriteRenderer>().flipX)
+            if (sr.flipX)
                 attackPoint.localPosition = new Vector3(-Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
             else
                 attackPoint.localPosition = new Vector3(Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);

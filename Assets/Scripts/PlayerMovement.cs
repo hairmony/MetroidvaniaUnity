@@ -4,10 +4,12 @@ using UnityEngine;
 using static UnityEditor.PlayerSettings;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
-public class PlayerMovement: MonoBehaviour {
+public class PlayerMovement : MonoBehaviour
+{
 
     private Rigidbody2D myBody;
     private SpriteRenderer sr;
+    private PlayerControls controls;
 
     [Header("Basic Movement")]
     //Serialize Field allows to directly edit variable in inspector tab while keeping them private from rest of program
@@ -39,6 +41,7 @@ public class PlayerMovement: MonoBehaviour {
     {
         myBody = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
+        controls = GetComponent<PlayerControls>();
     }
 
     void Start()
@@ -56,7 +59,7 @@ public class PlayerMovement: MonoBehaviour {
         }
         PlayerJump();
 
-        if (canTimeSlow && !isSlowing && Input.GetButtonDown("Fire3"))
+        if (canTimeSlow && !isSlowing && controls.fire3Pressed)
         {
             StartTimeSlow();
         }
@@ -81,7 +84,7 @@ public class PlayerMovement: MonoBehaviour {
     void PlayerMoveKeyboard()
     {
         //GetAxis acts as a sort of slide, acts as a mild accelerator
-        moveX = Input.GetAxisRaw("Horizontal");
+        moveX = controls.horizontalInput;
 
         float horizontalVelocity = moveForce * moveX;
         if (isSlowing)
@@ -94,14 +97,14 @@ public class PlayerMovement: MonoBehaviour {
         //Will default to whatever platform binds 'jump' (PC is space, controller may be A/X)
         //GetButtonUp will return true when button is released
         //GetButton will return true when pressed, held, and released
-        if (Input.GetButtonDown("Jump"))
+        if (controls.jumpPressed)
         {
             if (isGrounded)
             {
                 Jump();
                 isGrounded = false;
             }
-            else if (jumpsLeft >  0)
+            else if (jumpsLeft > 0)
             {
                 Jump();
                 jumpsLeft--;

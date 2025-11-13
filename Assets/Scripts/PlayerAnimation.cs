@@ -6,6 +6,7 @@ public class PlayerAnimation : MonoBehaviour
     private SpriteRenderer sr;
     private PlayerMovement playerMovement;
     private Rigidbody2D rb;
+    private PlayerControls controls;
 
     void Awake()
     {
@@ -13,6 +14,7 @@ public class PlayerAnimation : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         playerMovement = GetComponent<PlayerMovement>();
         rb = GetComponent<Rigidbody2D>();
+        controls = GetComponent<PlayerControls>();
 
         // Animations independent of total time scale for slowing time!
         anim.updateMode = AnimatorUpdateMode.UnscaledTime;
@@ -29,7 +31,7 @@ public class PlayerAnimation : MonoBehaviour
 
         anim.SetFloat("AirSpeedY", rb.linearVelocity.y);
 
-        if (Input.GetButtonDown("Jump") && onGround)
+        if (controls.jumpPressed && playerMovement.isGrounded)
         {
             anim.SetTrigger("Jump");
         }
