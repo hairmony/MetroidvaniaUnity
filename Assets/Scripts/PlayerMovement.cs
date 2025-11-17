@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -47,6 +48,10 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 rollColliderSize = new Vector2(0.5f, 0.75f);
     public Vector2 rollColliderOffset = new Vector2(0f, 0.45f);
 
+    [Header("Health")]
+    [SerializeField]
+    public int health = 5;
+
     private void Awake()
     {
         myBody = GetComponent<Rigidbody2D>();
@@ -66,6 +71,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         PlayerJump();
+
         if (canMove)
         {
             PlayerMoveKeyboard();
@@ -80,11 +86,9 @@ public class PlayerMovement : MonoBehaviour
         if (isSlowing)
         {
             slowTimer -= Time.unscaledDeltaTime;
-            if (slowTimer <= 0f)
+            if (slowTimer <= 0f && isGrounded)
                 EndTimeSlow();
         }
-
-        //myBody.gravityScale = isSlowing ? normalGravity * slowFactorPlayer : normalGravity;
 
         //ROLL
         if (canRoll && !isRolling && rollCooldownTimer <= 0f && controls.rollPressed && canMove)
@@ -102,6 +106,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (rollCooldownTimer > 0f)
             rollCooldownTimer -= Time.unscaledDeltaTime;
+
+        if (health <= 0)
+            gameObject.SetActive(false);
     }
 
     private void FixedUpdate()
@@ -121,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
 
         float horizontalVelocity = moveForce * moveX;
         if (isSlowing)
-            horizontalVelocity *= slowFactorPlayer;
+            horizontalVelocity *= slowFactorPlayer * slowFactorPlayer * slowFactor;
         myBody.linearVelocity = new Vector2(horizontalVelocity, myBody.linearVelocity.y);
     }
 
@@ -129,12 +136,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (controls.jumpPressed)
         {
+            canTimeSlow = false;
             if (isGrounded)
             {
                 Jump();
                 isGrounded = false;
             }
-            else if (jumpsLeft > 0)
+            else if (jumpsLeft > 0 && canDoubleJump)
             {
                 Jump();
                 jumpsLeft--;
@@ -154,10 +162,8 @@ public class PlayerMovement : MonoBehaviour
     {
         isSlowing = true;
         slowTimer = slowDuration;
-        moveForce /= (slowFactorPlayer);
-        jumpForce /= (slowFactorPlayer);
-        //myBody.gravityScale /= (slowFactorPlayer);
-
+        myBody.gravityScale = slowFactorPlayer * slowFactorPlayer;
+        canDoubleJump = false;
         Time.timeScale = slowFactor;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
@@ -165,13 +171,11 @@ public class PlayerMovement : MonoBehaviour
     void EndTimeSlow()
     {
         isSlowing = false;
-        moveForce *= (slowFactorPlayer);
-        jumpForce *= (slowFactorPlayer);
-
+        canDoubleJump = true;
+        jumpsLeft = 1; //Used to resolve a bug where if a player stands still after timeslow, jumpsLeft isn't properly reset
+        myBody.gravityScale = normalGravity;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
-
-        //myBody.gravityScale = normalGravity;
     }
 
     void StartRoll()
@@ -201,6 +205,7 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
+            canTimeSlow = true;
             jumpsLeft = canDoubleJump ? extraJumps : 0;
         }
     }
@@ -210,6 +215,7 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
+            canTimeSlow = false;
         }
     }
 }

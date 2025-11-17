@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerDeath : MonoBehaviour
+public class DeathBehaviour : MonoBehaviour
 {
     private void OnCollisionEnter2D(Collision2D collision)
     {
