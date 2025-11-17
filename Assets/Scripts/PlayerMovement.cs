@@ -20,13 +20,13 @@ public class PlayerMovement : MonoBehaviour
     public bool canMove = true;
 
     [Header("Double Jump")]
-    public bool canDoubleJump = false;
+    public bool canDoubleJump = true;
     [SerializeField]
     private int extraJumps = 1;
     private int jumpsLeft;
 
     [Header("Time Slow")]
-    public bool canTimeSlow = false;
+    public bool canTimeSlow = true;
     public float slowDuration = 2f;
     public float slowFactor = 0.5f;
     public float slowFactorPlayer = 1f;
@@ -64,6 +64,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        if(!canDoubleJump)
+        {
+            extraJumps = 0;
+        }
         jumpsLeft = extraJumps;
         normalGravity = myBody.gravityScale;
     }
@@ -78,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // TIME SLOW
-        if (canTimeSlow && !isSlowing && controls.fire3Pressed)
+        if (canTimeSlow && isGrounded && !isSlowing && controls.fire3Pressed)
         {
             StartTimeSlow();
         }
@@ -136,7 +140,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (controls.jumpPressed)
         {
-            canTimeSlow = false;
             if (isGrounded)
             {
                 Jump();
@@ -154,7 +157,7 @@ public class PlayerMovement : MonoBehaviour
     {
         myBody.linearVelocity = new Vector2(myBody.linearVelocity.x, 0f);
 
-        float currentJumpForce = isSlowing ? jumpForce * slowFactorPlayer : jumpForce;
+        float currentJumpForce = isSlowing ? jumpForce * slowFactorPlayer: jumpForce;
         myBody.AddForce(currentJumpForce * Vector2.up, ForceMode2D.Impulse);
     }
 
@@ -172,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
     {
         isSlowing = false;
         canDoubleJump = true;
-        jumpsLeft = 1; //Used to resolve a bug where if a player stands still after timeslow, jumpsLeft isn't properly reset
+        jumpsLeft = 1;
         myBody.gravityScale = normalGravity;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
@@ -205,7 +208,6 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
-            canTimeSlow = true;
             jumpsLeft = canDoubleJump ? extraJumps : 0;
         }
     }
@@ -215,7 +217,6 @@ public class PlayerMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
-            canTimeSlow = false;
         }
     }
 }
