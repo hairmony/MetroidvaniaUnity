@@ -47,6 +47,10 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 rollColliderSize = new Vector2(0.5f, 0.75f);
     public Vector2 rollColliderOffset = new Vector2(0f, 0.45f);
 
+    [Header("Health")]
+    [SerializeField]
+    public int health = 5;
+
     private void Awake()
     {
         myBody = GetComponent<Rigidbody2D>();
@@ -59,7 +63,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-        jumpsLeft = extraJumps;
+        if (canDoubleJump)
+            jumpsLeft = extraJumps;
+        else
+            jumpsLeft = 0; //Only effective when canTimeSlow is active while canDoubleJump isn't
         normalGravity = myBody.gravityScale;
     }
 
@@ -72,7 +79,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // TIME SLOW
-        if (canTimeSlow && !isSlowing && controls.fire3Pressed)
+        if (canTimeSlow && isGrounded && !isSlowing && controls.fire3Pressed)
         {
             StartTimeSlow();
         }
@@ -80,11 +87,9 @@ public class PlayerMovement : MonoBehaviour
         if (isSlowing)
         {
             slowTimer -= Time.unscaledDeltaTime;
-            if (slowTimer <= 0f)
+            if (slowTimer <= 0f && isGrounded && !isRolling)
                 EndTimeSlow();
         }
-
-        //myBody.gravityScale = isSlowing ? normalGravity * slowFactorPlayer : normalGravity;
 
         //ROLL
         if (canRoll && !isRolling && rollCooldownTimer <= 0f && controls.rollPressed && canMove)
@@ -102,6 +107,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (rollCooldownTimer > 0f)
             rollCooldownTimer -= Time.unscaledDeltaTime;
+
+        if(health <= 0)
+            gameObject.SetActive(false);
     }
 
     private void FixedUpdate()
@@ -109,7 +117,10 @@ public class PlayerMovement : MonoBehaviour
         if (isRolling)
         {
             float direction = sr.flipX ? -1f : 1f;
-            myBody.linearVelocity = new Vector2(direction * rollForce, myBody.linearVelocity.y);
+            float rollDirection = direction * rollForce;
+            if (isSlowing)
+                rollDirection *= (1/slowFactor);
+            myBody.linearVelocity = new Vector2(rollDirection, myBody.linearVelocity.y);
         }
     }
 
@@ -134,7 +145,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump();
                 isGrounded = false;
             }
-            else if (jumpsLeft > 0)
+            else if (jumpsLeft > 0 && canDoubleJump)
             {
                 Jump();
                 jumpsLeft--;
@@ -154,9 +165,8 @@ public class PlayerMovement : MonoBehaviour
     {
         isSlowing = true;
         slowTimer = slowDuration;
-        moveForce /= (slowFactorPlayer);
-        jumpForce /= (slowFactorPlayer);
-        //myBody.gravityScale /= (slowFactorPlayer);
+        myBody.gravityScale = slowFactorPlayer * slowFactorPlayer;
+        jumpsLeft = 0;
 
         Time.timeScale = slowFactor;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
@@ -165,13 +175,12 @@ public class PlayerMovement : MonoBehaviour
     void EndTimeSlow()
     {
         isSlowing = false;
-        moveForce *= (slowFactorPlayer);
-        jumpForce *= (slowFactorPlayer);
+        myBody.gravityScale = normalGravity;
+        if (canDoubleJump)
+            jumpsLeft = extraJumps;
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
-
-        //myBody.gravityScale = normalGravity;
     }
 
     void StartRoll()

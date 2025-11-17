@@ -7,19 +7,22 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
-    guid: 37e5a8fede113904fb706a4233765bfc
-  - enabled: 1
+    guid: 831da464a955f164daa01fa8534a54f2
+  - enabled: 0
     path: Assets/Scenes/OpeningRoom.unity
     guid: 7712594af5ead9d40b3ac015cc3e3907
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/DoorTest1.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SecondRoom.unity
     guid: d89500323913eb64ca4b9d598ac71103
   - enabled: 1
     path: Assets/Scenes/DockingBay.unity
     guid: 1e2af573177a98f478065f1160238acf
+  - enabled: 1
+    path: Assets/Scenes/1stChallenge.unity
+    guid: 8242bfc1f3d690d48b93196cdc43302d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

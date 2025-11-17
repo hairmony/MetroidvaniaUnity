@@ -15,7 +15,7 @@ public class PlayerAttack : MonoBehaviour
     [Header("Damage")]
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackRange = 0.5f;
-    [SerializeField] private int attackDamage = 20;
+    [SerializeField] private int attackDamage = 1;
     [SerializeField] private LayerMask enemyLayers;
 
     private Animator anim;
@@ -92,6 +92,8 @@ public class PlayerAttack : MonoBehaviour
         foreach (Collider2D enemy in hitEnemies)
         {
             Debug.Log("Hit " + enemy.name);
+            enemy.GetComponent<PlayerMovement>().health--;
+            Debug.Log(enemy.GetComponent<PlayerMovement>().health);
         }
     }
 

@@ -235,12 +235,12 @@ MonoBehaviour:
   moveX: 0
   isGrounded: 1
   canMove: 1
-  canDoubleJump: 0
+  canDoubleJump: 1
   extraJumps: 1
-  canTimeSlow: 0
+  canTimeSlow: 1
   slowDuration: 2
-  slowFactor: 0.5
-  slowFactorPlayer: 1
+  slowFactor: 0.25
+  slowFactorPlayer: 3
   isSlowing: 0
   canRoll: 1
   rollForce: 8
@@ -250,6 +250,7 @@ MonoBehaviour:
   rollCooldownTimer: -4.1623
   rollColliderSize: {x: 0.5, y: 0.75}
   rollColliderOffset: {x: 0, y: 0.45}
+  health: 5
 --- !u!114 &7789813250617512599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,7 +279,7 @@ MonoBehaviour:
   isAttacking: 0
   attackPoint: {fileID: 7204561475167543180}
   attackRange: 0.5
-  attackDamage: 20
+  attackDamage: 1
   enemyLayers:
     serializedVersion: 2
     m_Bits: 64
