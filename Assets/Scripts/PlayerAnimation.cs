@@ -57,7 +57,7 @@ public class PlayerAnimation : MonoBehaviour
         // If slowing, set animation time scale
         if (playerMovement.isSlowing)
         {
-            playerSpeedMultiplier = playerMovement.slowFactorPlayer * playerMovement.slowFactor;
+            playerSpeedMultiplier = playerMovement.slowFactorPlayer;
         }
         else
         {

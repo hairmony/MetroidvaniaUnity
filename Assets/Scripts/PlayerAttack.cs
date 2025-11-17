@@ -43,7 +43,6 @@ public class PlayerAttack : MonoBehaviour
             if (canAttack && !playerMovement.isRolling)
             {
                 Attack();
-                //DoDamage();
             }
             else
             {
@@ -93,8 +92,6 @@ public class PlayerAttack : MonoBehaviour
         foreach (Collider2D enemy in hitEnemies)
         {
             Debug.Log("Hit " + enemy.name);
-            enemy.GetComponent<PlayerMovement>().health -= attackDamage;
-            Debug.Log(enemy.GetComponent<PlayerMovement>().health);
         }
     }
 
@@ -110,7 +107,6 @@ public class PlayerAttack : MonoBehaviour
         if (attackBuffered)
         {
             Attack();
-            //DoDamage();
         }
     }
 

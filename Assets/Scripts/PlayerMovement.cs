@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -20,13 +19,13 @@ public class PlayerMovement : MonoBehaviour
     public bool canMove = true;
 
     [Header("Double Jump")]
-    public bool canDoubleJump = true;
+    public bool canDoubleJump = false;
     [SerializeField]
     private int extraJumps = 1;
     private int jumpsLeft;
 
     [Header("Time Slow")]
-    public bool canTimeSlow = true;
+    public bool canTimeSlow = false;
     public float slowDuration = 2f;
     public float slowFactor = 0.5f;
     public float slowFactorPlayer = 1f;
@@ -48,10 +47,6 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 rollColliderSize = new Vector2(0.5f, 0.75f);
     public Vector2 rollColliderOffset = new Vector2(0f, 0.45f);
 
-    [Header("Health")]
-    [SerializeField]
-    public int health = 5;
-
     private void Awake()
     {
         myBody = GetComponent<Rigidbody2D>();
@@ -64,10 +59,6 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-        if(!canDoubleJump)
-        {
-            extraJumps = 0;
-        }
         jumpsLeft = extraJumps;
         normalGravity = myBody.gravityScale;
     }
@@ -75,14 +66,13 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         PlayerJump();
-
         if (canMove)
         {
             PlayerMoveKeyboard();
         }
 
         // TIME SLOW
-        if (canTimeSlow && isGrounded && !isSlowing && controls.fire3Pressed)
+        if (canTimeSlow && !isSlowing && controls.fire3Pressed)
         {
             StartTimeSlow();
         }
@@ -90,9 +80,11 @@ public class PlayerMovement : MonoBehaviour
         if (isSlowing)
         {
             slowTimer -= Time.unscaledDeltaTime;
-            if (slowTimer <= 0f && isGrounded)
+            if (slowTimer <= 0f)
                 EndTimeSlow();
         }
+
+        //myBody.gravityScale = isSlowing ? normalGravity * slowFactorPlayer : normalGravity;
 
         //ROLL
         if (canRoll && !isRolling && rollCooldownTimer <= 0f && controls.rollPressed && canMove)
@@ -110,9 +102,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (rollCooldownTimer > 0f)
             rollCooldownTimer -= Time.unscaledDeltaTime;
-
-        if (health <= 0)
-            gameObject.SetActive(false);
     }
 
     private void FixedUpdate()
@@ -132,7 +121,7 @@ public class PlayerMovement : MonoBehaviour
 
         float horizontalVelocity = moveForce * moveX;
         if (isSlowing)
-            horizontalVelocity *= slowFactorPlayer * slowFactorPlayer * slowFactor;
+            horizontalVelocity *= slowFactorPlayer;
         myBody.linearVelocity = new Vector2(horizontalVelocity, myBody.linearVelocity.y);
     }
 
@@ -145,7 +134,7 @@ public class PlayerMovement : MonoBehaviour
                 Jump();
                 isGrounded = false;
             }
-            else if (jumpsLeft > 0 && canDoubleJump)
+            else if (jumpsLeft > 0)
             {
                 Jump();
                 jumpsLeft--;
@@ -157,7 +146,7 @@ public class PlayerMovement : MonoBehaviour
     {
         myBody.linearVelocity = new Vector2(myBody.linearVelocity.x, 0f);
 
-        float currentJumpForce = isSlowing ? jumpForce * slowFactorPlayer: jumpForce;
+        float currentJumpForce = isSlowing ? jumpForce * slowFactorPlayer : jumpForce;
         myBody.AddForce(currentJumpForce * Vector2.up, ForceMode2D.Impulse);
     }
 
@@ -165,8 +154,10 @@ public class PlayerMovement : MonoBehaviour
     {
         isSlowing = true;
         slowTimer = slowDuration;
-        myBody.gravityScale = slowFactorPlayer * slowFactorPlayer;
-        canDoubleJump = false;
+        moveForce /= (slowFactorPlayer);
+        jumpForce /= (slowFactorPlayer);
+        //myBody.gravityScale /= (slowFactorPlayer);
+
         Time.timeScale = slowFactor;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
@@ -174,11 +165,13 @@ public class PlayerMovement : MonoBehaviour
     void EndTimeSlow()
     {
         isSlowing = false;
-        canDoubleJump = true;
-        jumpsLeft = 1;
-        myBody.gravityScale = normalGravity;
+        moveForce *= (slowFactorPlayer);
+        jumpForce *= (slowFactorPlayer);
+
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
+
+        //myBody.gravityScale = normalGravity;
     }
 
     void StartRoll()
